@@ -1,26 +1,35 @@
 {
   "name": "@hexlet/code",
   "version": "1.0.0",
-  "description": "project generate-difference",
-  "main": "index.js",
   "type": "module",
+  "description": "Project Numero 2",
   "bin": {
     "gendiff": "bin/gendiff.js"
   },
+  "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Scarecrow2510/frontend-project-46.git"
+    "url": "git+https://github.com/hexletart/frontend-project-lvl2.git"
   },
-  "author": "Denis Shchukin",
+  "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Scarecrow2510/frontend-project-46/issues"
+    "url": "https://github.com/hexletart/frontend-project-lvl2/issues"
   },
-  "homepage": "https://github.com/Scarecrow2510/frontend-project-46#readme",
+  "homepage": "https://github.com/hexletart/frontend-project-lvl2#readme",
   "dependencies": {
-    "commander": "^10.0.0"
+    "commander": "^9.1.0",
+    "js-yaml": "^4.1.0",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "eslint": "^8.13.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jest": "^26.1.4",
+    "jest": "^27.5.1"
   }
 }
