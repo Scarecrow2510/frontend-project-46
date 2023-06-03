@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-export default (treeData, deepness = 1, dash = ' ', dashLength = 2) => {
+const getStylishOutput = (treeData, deepness = 1, dash = ' ', dashLength = 2) => {
   const buildTree = (tree, depth) => {
     if (!_.isUndefined(tree) && !_.isObject(tree)) return `${tree}`;
     const currentGap = (level) => dash.repeat(dashLength * level);
@@ -19,3 +19,5 @@ export default (treeData, deepness = 1, dash = ' ', dashLength = 2) => {
   };
   return buildTree(treeData, deepness);
 };
+
+export default getStylishOutput;

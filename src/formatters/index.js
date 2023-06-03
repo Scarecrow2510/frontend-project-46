@@ -7,6 +7,7 @@ export default (treeData, format) => {
     case 'stylish': return getStylishOutput(treeData);
     case 'plain': return getPlainOutput(treeData);
     case 'json': return getJsonOutput(treeData);
-    default: return `Something went wrong with ${format} format.`;
+    default:
+      throw new Error(`Something went wrong with ${format} format.`);
   }
 };

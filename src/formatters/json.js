@@ -7,5 +7,5 @@ export default (inputTree) => {
       .map((key) => `"${[key]}":${getTreeInJson(node[key])}`)).map((node) => `{${node}}`);
     return (_.isArray(tree)) ? `[${nodes}]` : `${nodes}`;
   };
-  return getTreeInJson(inputTree);
+  return JSON.stringify(getTreeInJson(inputTree));
 };

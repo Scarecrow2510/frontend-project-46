@@ -1,12 +1,14 @@
 import _ from 'lodash';
-import { getValidPath } from './data/filePath.js';
+import process from 'process';
+import path from 'path';
 import getDataByParcing from './data/parsers.js';
 import getDataByFormat from './formatters/index.js';
 
 export default (filepath1, filepath2, format = 'stylish') => {
+  const getValidPath = (ident) => path.resolve(process.cwd(), ident);
   const [fileData1, fileData2] = [filepath1, filepath2]
+    // eslint-disable-next-line no-shadow
     .map((path) => getDataByParcing(getValidPath(path)));
-  if (_.isEqual(fileData1, fileData2)) return 'Values are the same';
   const diffIdent = (file1, file2) => {
     if (_.isUndefined(file2) || _.isEqual(file1, file2)) return file1;
     const objKeys = [file1, file2]
