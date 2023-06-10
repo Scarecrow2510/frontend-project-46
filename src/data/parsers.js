@@ -1,3 +1,5 @@
+/* eslint no-throw-literal: "error" */
+
 import YAML from 'js-yaml';
 
 const parsingConfig = {
