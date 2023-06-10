@@ -1,9 +1,0 @@
-Property 'cat' was removed
-Property 'doge.wow' was updated. From 'quietly' to 'so much'
-
-Property 'follow' was removed
-Property 'mouse' was added with value: [complex value]
-Property 'pig' was updated. From [complex value] to 1
-Property 'proxy' was removed
-Property 'timeout' was updated. From 50 to 20
-Property 'verbose' was added with value: true

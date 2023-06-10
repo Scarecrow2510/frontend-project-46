@@ -1,47 +1,34 @@
 import _ from 'lodash';
 
-export default (inputTree) => {
-  const buildString = (layout, notice, parameter1, parameter2) => {
-    const [par1, par2] = [parameter1, parameter2].filter((el) => !_.isUndefined(el))
-      .map((el) => ((typeof el === 'string') ? `'${el}'` : el))
-      .map((el) => (_.isObject(el) ? `${'[complex value]'}` : el));
-    const prefix = `Property '${layout}' was`;
-    const getBody = (action) => {
-      switch (action) {
-        case 'removed': return 'removed';
-        case 'added': return `added with value: ${par1}`;
-        case 'updated': return `updated. From ${par1} to ${par2}`;
-        default: return `Something went wrogn with ${action} action.`;
+const makeStr = (value) => {
+  if (typeof value === 'string') {
+    return `'${value}'`;
+  }
+  return _.isObject(value) ? '[complex value]' : value;
+};
+
+export default (obj) => {
+  const iter = (node, propName, isSeparated = false) => {
+    const result = node.flatMap((elem) => {
+      const { key, type, children } = elem;
+      const separator = isSeparated ? '.' : '';
+      const property = `${propName}${separator}${key}`;
+      if (type === 'changed') {
+        const { old: oldVal, new: newVal } = children;
+        const deletedValue = makeStr(oldVal);
+        const addedValue = makeStr(newVal);
+        return `Property '${property}' was updated. From ${deletedValue} to ${addedValue}`;
       }
-    };
-    const body = getBody(notice);
-    return `${prefix} ${body}`;
+      if (type === 'deleted') {
+        return `Property '${property}' was removed`;
+      }
+      if (type === 'added') {
+        const newChildren = makeStr(children);
+        return `Property '${property}' was added with value: ${newChildren}`;
+      }
+      return Array.isArray(children) ? iter(children, property, true) : [];
+    });
+    return result.join('\n');
   };
-  const buildComparison = (tree, root = []) => {
-    const branchesData = tree.map((branch) => branch[_.head(Object.keys(branch))]);
-    const keys = branchesData.map((branch) => Object.keys(branch)).flat();
-    const branches = tree.map((branch) => {
-      const [branchData, mark] = Object.keys(branch).map((key) => branch[key]);
-      const leafs = Object.entries(branchData)
-        .map(([key, value]) => {
-          const newRoot = [...root, key];
-          const rootForPrint = newRoot.join('.');
-          const isUniq = keys.filter((el) => _.isEqual(el, key)).length === 1;
-          const getStaitment = (sign, status) => {
-            if (sign === '-' && status) return buildString(rootForPrint, 'removed');
-            if (sign === ' ') return (_.isArray(value)) ? buildComparison(value, newRoot) : [];
-            if (sign === '+' && status) return buildString(rootForPrint, 'added', value);
-            if (sign === '-' && !status) {
-              const [value1, value2] = branchesData.map((el) => _.get(el, key, [])).flat();
-              return (buildString(rootForPrint, 'updated', value1, value2));
-            }
-            return [];
-          };
-          return getStaitment(mark, isUniq);
-        }).flat();
-      return leafs;
-    }).flat();
-    return branches.join('\n');
-  };
-  return buildComparison(inputTree);
+  return iter(obj, '');
 };

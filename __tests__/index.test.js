@@ -1,27 +1,40 @@
-import path from 'path';
+import { test, expect } from '@jest/globals';
 import { fileURLToPath } from 'url';
-import { readFileSync } from 'fs';
-import genDiff from '../src/index';
+import path, { dirname } from 'path';
+import fs from 'fs';
+import genDiff from '../src/index.js';
+import parse from '../src/parsers.js';
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const getFixturePath = (ident) => path.join(__dirname, '../..', '__fixtures__', ident);
+const __dirname = dirname(__filename);
+const getFixturePath = (filename) => path.join(__dirname, '..', '__fixtures__', filename);
+const readFile = (filename) => fs.readFileSync(getFixturePath(filename), 'utf-8');
 
-const formatterSet = [
-  {
-    a: 'jsonFile1.json', b: 'yamlFile2.yml', expected: 'stylishOutput.txt', format: 'stylish',
-  },
-  {
-    a: 'yamlFile1.yaml', b: 'jsonFile2.json', expected: 'plainOutput.txt', format: 'plain',
-  },
-  {
-    a: 'jsonFile1.json', b: 'jsonFile2.json', expected: 'jsonOutput.txt', format: 'json',
-  },
-];
+const files = [['file1.json', 'file2.json'], ['file1.yaml', 'file2.yml'],
+  ['file1.json', 'file2.yml'], ['file1.yaml', 'file2.json']];
 
-test.each(formatterSet)('$format formatter of gendiff', ({
-  a, b, expected, format,
-}) => {
-  expect(genDiff(getFixturePath(a), getFixturePath(b), format))
-    .toEqual(readFileSync(getFixturePath(expected), 'utf-8'));
+test.each(files)('gendiff for "stylish" format', (file1, file2) => {
+  const file1path = getFixturePath(file1);
+  const file2path = getFixturePath(file2);
+  const result = readFile('resultStylish.txt');
+  expect(genDiff(file1path, file2path, 'stylish')).toEqual(result);
+});
+
+test.each(files)('gendiff for "plain" format', (file1, file2) => {
+  const file1path = getFixturePath(file1);
+  const file2path = getFixturePath(file2);
+  const data = readFile('resultPlain.txt');
+  expect(genDiff(file1path, file2path, 'plain')).toEqual(data);
+});
+
+test.each(files)('gendiff for "json" format', (file1, file2) => {
+  const file1path = getFixturePath(file1);
+  const file2path = getFixturePath(file2);
+  const result = readFile('resultJson.txt');
+  expect(genDiff(file1path, file2path, 'json')).toEqual(result);
+});
+
+test('check for parsing error', () => {
+  const file1path = getFixturePath('file1.js');
+  expect(() => { parse(file1path, 'js'); }).toThrow('Invalid parsing result!');
 });

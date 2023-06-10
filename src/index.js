@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import parse from './data/parsers.js';
+import parse from './parsers.js';
 import format from './formatters/index.js';
 import readFile from './readfile.js';
 
@@ -29,7 +29,7 @@ const buildTree = (obj1, obj2) => {
         return { key, type: newType, children };
       }
       default: {
-        throw new Error('Unexpected result of comparing!');
+        throw new Error('Unexpected result of comparing!'); // NOTE: doesn't cover by tests!
       }
     }
   });

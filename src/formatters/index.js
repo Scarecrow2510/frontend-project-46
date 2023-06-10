@@ -1,13 +1,16 @@
-import getPlainOutput from './plain.js';
-import getStylishOutput from './stylish.js';
-import getJsonOutput from './json.js';
+import plain from './plain.js';
+import stylish from './stylish.js';
+import json from './json.js';
 
-export default (treeData, format) => {
+export default (obj, format) => {
   switch (format) {
-    case 'stylish': return getStylishOutput(treeData);
-    case 'plain': return getPlainOutput(treeData);
-    case 'json': return getJsonOutput(treeData);
+    case 'stylish':
+      return stylish(obj);
+    case 'plain':
+      return plain(obj);
+    case 'json':
+      return json(obj);
     default:
-      throw new Error(`Something went wrong with ${format} format.`);
+      throw new Error(`Unexpected format: ${format}!`);
   }
 };

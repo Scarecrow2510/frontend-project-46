@@ -1,23 +1,47 @@
 import _ from 'lodash';
 
-const getStylishOutput = (treeData, deepness = 1, dash = ' ', dashLength = 2) => {
-  const buildTree = (tree, depth) => {
-    if (!_.isUndefined(tree) && !_.isObject(tree)) return `${tree}`;
-    const currentGap = (level) => dash.repeat(dashLength * level);
-    const bracketGap = (level) => dash.repeat((dashLength * level) - dashLength);
-    const lines = _.flatten([tree]).reduce((acc, branch) => {
-      const [node, mark = ' '] = (_.isArray(tree))
-        ? Object.keys(branch).map((key) => branch[key]) : [branch];
-      const linesChunk = Object.entries(node)
-        .map(([key, value]) => {
-          const currentValue = buildTree(value, depth + 2);
-          return `${currentGap(depth)}${mark} ${key}: ${currentValue}`;
-        });
-      return [...acc, ...linesChunk];
-    }, []);
-    return ['{', ...lines, `${bracketGap(depth)}}`].join('\n');
-  };
-  return buildTree(treeData, deepness);
+const spaceCount = 4;
+const linesSpaceCount = 2;
+
+const symbols = {
+  space: ' ',
+  doubleSpace: '  ',
+  minusWithSpace: '- ',
+  plusWithSpace: '+ ',
 };
 
-export default getStylishOutput;
+const generateIndents = (depth) => {
+  const linesIndent = symbols.space.repeat(depth * spaceCount + linesSpaceCount);
+  const bracketIndent = symbols.space.repeat(depth * spaceCount);
+  return [linesIndent, bracketIndent];
+};
+
+export default (obj) => {
+  const format = (node, depth = 0) => {
+    if (!Array.isArray(node)) {
+      return _.isObject(node) ? format(Object.entries(node), depth) : node;
+    }
+    const [linesIndent, bracketIndent] = generateIndents(depth);
+    const result = node.flatMap((elem) => {
+      if (Array.isArray(elem)) {
+        const [key, value] = elem;
+        return `${linesIndent}${symbols.doubleSpace}${key}: ${format(value, depth + 1)}`;
+      }
+      const { key, type, children } = elem;
+      if (type === 'changed') {
+        const { old: oldVal, new: newVal } = children;
+        const { minusWithSpace: firstSymbol, plusWithSpace: secondSymbol } = symbols;
+        const firstNode = `${linesIndent}${firstSymbol}${key}: ${format(oldVal, depth + 1)}`;
+        const secondNode = `${linesIndent}${secondSymbol}${key}: ${format(newVal, depth + 1)}`;
+        return [firstNode, secondNode];
+      }
+      if (type === 'unchanged' || type === 'nested') {
+        return `${linesIndent}${symbols.doubleSpace}${key}: ${format(children, depth + 1)}`;
+      }
+      const symbol = type === 'added' ? symbols.plusWithSpace : symbols.minusWithSpace;
+      return `${linesIndent}${symbol}${key}: ${format(children, depth + 1)}`;
+    });
+    return ['{', ...result, `${bracketIndent}}`].join('\n');
+  };
+  return format(obj);
+};
