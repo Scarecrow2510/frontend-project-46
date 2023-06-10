@@ -1,16 +1,15 @@
-/* eslint no-throw-literal: "error" */
-
 import YAML from 'js-yaml';
 
+const parsingConfig = {
+  '.json': JSON.parse,
+  '.yaml': YAML.parse,
+  '.yml': YAML.parse,
+};
+
 export default (fileData, fileExt) => {
-  switch (fileExt) {
-    case '.json':
-      return JSON.parse(fileData);
-    case '.yml':
-      return YAML.load(fileData);
-    case '.yaml':
-      return YAML.load(fileData);
-    default:
-      throw new Error(`Invalid format: ${fileExt}`);
+  try {
+    return parsingConfig[fileExt](fileData);
+  } catch (e) {
+    throw new Error('Invalid parsing result!');
   }
 };
