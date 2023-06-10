@@ -1,39 +1,45 @@
 import _ from 'lodash';
-import process from 'process';
-import path from 'path';
-import getDataByParcing from './data/parsers.js';
-import getDataByFormat from './formatters/index.js';
+import parse from './data/parsers.js';
+import format from './formatters/index.js';
+import readFile from './readfile.js';
 
-export default (filepath1, filepath2, format = 'stylish') => {
-  const getValidPath = (ident) => path.resolve(process.cwd(), ident);
-  const [fileData1, fileData2] = [filepath1, filepath2]
-    // eslint-disable-next-line no-shadow
-    .map((path) => getDataByParcing(getValidPath(path)));
-  const diffIdent = (file1, file2) => {
-    if (_.isUndefined(file2) || _.isEqual(file1, file2)) return file1;
-    const objKeys = [file1, file2]
-      .filter((data) => _.isObject(data)).map((data) => Object.keys(data)).flat();
-    const uniqKeys = _.sortBy(_.uniq(objKeys));
-    const getTree = uniqKeys.flatMap((key) => {
-      const buildBranchByKey = (uniqKey) => {
-        const isInFirst = _.has(file1, uniqKey);
-        const isInSecond = _.has(file2, uniqKey);
-        const value1 = _.get(file1, uniqKey);
-        const value2 = _.get(file2, uniqKey);
-        if (isInFirst && !isInSecond) return { node: { [uniqKey]: diffIdent(value1) }, mark: '-' };
-        if (isInSecond && !isInFirst) return { node: { [uniqKey]: diffIdent(value2) }, mark: '+' };
-        if ((!_.isObject(value1) || !_.isObject(value2)) && !_.isEqual(value1, value2)) {
-          return [
-            { node: { [uniqKey]: diffIdent(value1) }, mark: '-' },
-            { node: { [uniqKey]: diffIdent(value2) }, mark: '+' },
-          ].flat();
-        }
-        return { node: { [uniqKey]: diffIdent(value1, value2) }, mark: ' ' };
-      };
-      return buildBranchByKey(key);
-    });
-    return getTree;
-  };
-  const filesDiff = diffIdent(fileData1, fileData2);
-  return getDataByFormat(filesDiff, format);
+const mergeKeys = (obj1, obj2) => {
+  const keys1 = Object.keys(obj1);
+  const keys2 = Object.keys(obj2);
+  return _.union(keys1, keys2);
+};
+
+const getChildrenValues = (node, data1, data2) => [_.get(data1, node), _.get(data2, node)];
+
+const buildTree = (obj1, obj2) => {
+  const sortedKeys = _.sortBy(mergeKeys(obj1, obj2));
+  return sortedKeys.flatMap((key) => {
+    const [val1, val2] = getChildrenValues(key, obj1, obj2);
+    switch (true) {
+      case (_.isObject(val1) && _.isObject(val2)):
+        return { key, type: 'nested', children: buildTree(val1, val2) };
+      case (val1 === val2):
+        return { key, type: 'unchanged', children: val1 };
+      case (_.has(obj1, key) && _.has(obj2, key)): {
+        return { key, type: 'changed', children: { old: val1, new: val2 } };
+      }
+      case (!val1 || !val2): {
+        const children = val1 || val2;
+        const newType = val1 ? 'deleted' : 'added';
+        return { key, type: newType, children };
+      }
+      default: {
+        throw new Error('Unexpected result of comparing!'); // NOTE: doesn't cover by tests!
+      }
+    }
+  });
+};
+
+export default (path1, path2, formatName = 'stylish') => {
+  const [fileData1, fileExt1] = readFile(path1);
+  const [fileData2, fileExt2] = readFile(path2);
+  const dataObject1 = parse(fileData1, fileExt1);
+  const dataObject2 = parse(fileData2, fileExt2);
+  const result = buildTree(dataObject1, dataObject2);
+  return format(result, formatName);
 };
