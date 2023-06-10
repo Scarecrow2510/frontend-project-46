@@ -10,6 +10,6 @@ export default (fileData, fileExt) => {
   try {
     return parsingConfig[fileExt](fileData);
   } catch (e) {
-    throw new Error('Invalid parsing result!');
+    return 'Invalid parsing result!';
   }
 };
