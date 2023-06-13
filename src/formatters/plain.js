@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-const makeStr = (value) => {
+const stringify = (value) => {
   if (typeof value === 'string') {
     return `'${value}'`;
   }
@@ -15,15 +15,15 @@ export default (obj) => {
       const property = `${propName}${separator}${key}`;
       if (type === 'changed') {
         const { old: oldVal, new: newVal } = children;
-        const deletedValue = makeStr(oldVal);
-        const addedValue = makeStr(newVal);
+        const deletedValue = stringify(oldVal);
+        const addedValue = stringify(newVal);
         return `Property '${property}' was updated. From ${deletedValue} to ${addedValue}`;
       }
       if (type === 'deleted') {
         return `Property '${property}' was removed`;
       }
       if (type === 'added') {
-        const newChildren = makeStr(children);
+        const newChildren = stringify(children);
         return `Property '${property}' was added with value: ${newChildren}`;
       }
       return Array.isArray(children) ? iter(children, property, true) : [];
