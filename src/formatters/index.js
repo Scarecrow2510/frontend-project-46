@@ -1,15 +1,17 @@
-import plain from './plain.js';
 import stylish from './stylish.js';
+import plain from './plain.js';
 
-export default (obj, format) => {
+const chooseFormat = (data, format) => {
   switch (format) {
     case 'stylish':
-      return stylish(obj);
+      return stylish(data);
     case 'plain':
-      return plain(obj);
+      return plain(data);
     case 'json':
-      return JSON.stringify(obj);
+      return JSON.stringify(data);
     default:
-      throw new Error(`Unexpected format: ${format}!`);
+      throw new Error(`Unknown format: ${format}`);
   }
 };
+
+export default chooseFormat;

@@ -1,34 +1,43 @@
 import _ from 'lodash';
 
-const stringify = (value) => {
-  if (typeof value === 'string') {
+const checkValueFormat = (value) => {
+  if (_.isObject(value)) {
+    return '[complex value]';
+  }
+  if (_.isString(value)) {
     return `'${value}'`;
   }
-  return _.isObject(value) ? '[complex value]' : value;
+  return value;
 };
 
-export default (obj) => {
-  const iter = (node, propName, isSeparated = false) => {
-    const result = node.flatMap((elem) => {
-      const { key, type, children } = elem;
-      const separator = isSeparated ? '.' : '';
-      const property = `${propName}${separator}${key}`;
-      if (type === 'changed') {
-        const { old: oldVal, new: newVal } = children;
-        const deletedValue = stringify(oldVal);
-        const addedValue = stringify(newVal);
-        return `Property '${property}' was updated. From ${deletedValue} to ${addedValue}`;
-      }
-      if (type === 'deleted') {
-        return `Property '${property}' was removed`;
-      }
-      if (type === 'added') {
-        const newChildren = stringify(children);
-        return `Property '${property}' was added with value: ${newChildren}`;
-      }
-      return Array.isArray(children) ? iter(children, property, true) : [];
-    });
-    return result.join('\n');
-  };
-  return iter(obj, '');
+const plain = (diff, fileName = []) => {
+  const {
+    type, children, name, value, value1, value2,
+  } = diff;
+  const nestedKeys = [...fileName, name];
+  const joinPath = nestedKeys.join('.');
+  switch (type) {
+    case 'root': {
+      const result = children
+        .filter((child) => child.type !== 'unchanged')
+        .flatMap((child) => plain(child, []));
+      return result.join('\n');
+    }
+    case 'nested': {
+      const result = children
+        .filter((child) => child.type !== 'unchanged')
+        .flatMap((child) => plain(child, nestedKeys));
+      return result.join('\n');
+    }
+    case 'added':
+      return `Property '${joinPath}' was added with value: ${checkValueFormat(value)}`;
+    case 'deleted':
+      return `Property '${joinPath}' was removed`;
+    case 'changed':
+      return `Property '${joinPath}' was updated. From ${checkValueFormat(value1)} to ${checkValueFormat(value2)}`;
+    default:
+      throw new Error(`Type: ${type} is undefined`);
+  }
 };
+
+export default plain;

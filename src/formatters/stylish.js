@@ -1,47 +1,47 @@
 import _ from 'lodash';
 
-const spaceCount = 4;
-const linesSpaceCount = 2;
+const makeIndent = (depth, replacer = ' ', spacesCount = 4) => replacer.repeat(depth * spacesCount - 2);
 
-const symbols = {
-  space: ' ',
-  doubleSpace: '  ',
-  minusWithSpace: '- ',
-  plusWithSpace: '+ ',
+const valueFromation = (data, stylish, depth = 1) => {
+  if (!_.isObject(data)) {
+    return data;
+  }
+  const keys = Object.keys(data);
+  const result = keys.map((name) => {
+    const value = data[name];
+    return stylish({ name, value, type: 'unchanged' }, depth + 1);
+  });
+  return `{\n${result.join('\n')}\n  ${makeIndent(depth)}}`;
 };
 
-const generateIndents = (depth) => {
-  const linesIndent = symbols.space.repeat(depth * spaceCount + linesSpaceCount);
-  const bracketIndent = symbols.space.repeat(depth * spaceCount);
-  return [linesIndent, bracketIndent];
-};
+const stylish = (diff, depth = 0) => {
+  const {
+    name, value, type, value1, value2, children,
+  } = diff;
 
-export default (obj) => {
-  const format = (node, depth = 0) => {
-    if (!Array.isArray(node)) {
-      return _.isObject(node) ? format(Object.entries(node), depth) : node;
+  switch (type) {
+    case 'root': {
+      const resultLine = children.flatMap((child) => stylish(child, depth + 1));
+      return `{\n${resultLine.join('\n')}\n}`;
     }
-    const [linesIndent, bracketIndent] = generateIndents(depth);
-    const result = node.flatMap((elem) => {
-      if (Array.isArray(elem)) {
-        const [key, value] = elem;
-        return `${linesIndent}${symbols.doubleSpace}${key}: ${format(value, depth + 1)}`;
-      }
-      const { key, type, children } = elem;
-      if (type === 'changed') {
-        const { old: oldVal, new: newVal } = children;
-        const { minusWithSpace: firstSymbol, plusWithSpace: secondSymbol } = symbols;
-        const firstNode = `${linesIndent}${firstSymbol}${key}: ${format(oldVal, depth + 1)}`;
-        const secondNode = `${linesIndent}${secondSymbol}${key}: ${format(newVal, depth + 1)}`;
-        return [firstNode, secondNode];
-      }
-      if (type === 'unchanged' || type === 'nested') {
-        return `${linesIndent}${symbols.doubleSpace}${key}: ${format(children, depth + 1)}`;
-      }
-      const symbol = type === 'added' ? symbols.plusWithSpace : symbols.minusWithSpace;
-      return `${linesIndent}${symbol}${key}: ${format(children, depth + 1)}`;
-    });
-    return ['{', ...result, `${bracketIndent}}`].join('\n');
-  };
-  return format(obj);
+    case 'nested': {
+      const resultLine = children.flatMap((child) => stylish(child, depth + 1));
+      return `${makeIndent(depth)}  ${name}: {\n${resultLine.join('\n')}\n${makeIndent(depth)}  }`;
+    }
+    case 'added':
+      return `${makeIndent(depth)}+ ${name}: ${valueFromation(value, stylish, depth)}`;
+    case 'deleted':
+      return `${makeIndent(depth)}- ${name}: ${valueFromation(value, stylish, depth)}`;
+    case 'unchanged':
+      return `${makeIndent(depth)}  ${name}: ${valueFromation(value, stylish, depth)}`;
+    case 'changed': {
+      const removed = `${makeIndent(depth)}- ${name}: ${valueFromation(value1, stylish, depth)}`;
+      const added = `${makeIndent(depth)}+ ${name}: ${valueFromation(value2, stylish, depth)}`;
+      return `${removed}\n${added}`;
+    }
+    default:
+      throw new Error(`Type: ${type} is undefined`);
+  }
 };
+
+export default stylish;

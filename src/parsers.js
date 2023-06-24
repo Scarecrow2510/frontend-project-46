@@ -1,15 +1,16 @@
-import YAML from 'yaml';
+import { load } from 'js-yaml';
 
-const parsingConfig = {
-  '.json': JSON.parse,
-  '.yaml': YAML.parse,
-  '.yml': YAML.parse,
-};
-
-export default (data, extension) => {
-  try {
-    return parsingConfig[extension](data);
-  } catch (e) {
-    throw new Error(`Invalid parsing '${parsingConfig[extension](data)}' result!`);
+const getParser = (data, format) => {
+  switch (format) {
+    case 'json':
+      return JSON.parse(data);
+    case 'yaml':
+      return load(data);
+    case 'yml':
+      return load(data);
+    default:
+      throw new Error('Unknown fornmat. You can use JSON or YAML formats.');
   }
 };
+
+export default getParser;

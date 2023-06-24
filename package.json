@@ -22,16 +22,16 @@
   "homepage": "https://github.com/Scarecrow2510/frontend-project-46#readme",
   "dependencies": {
     "commander": "^9.1.0",
-    "lodash": "^4.17.21",
-    "yaml": "^2.3.1"
+    "js-yaml": "^4.1.0",
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
     "@jest/globals": "^29.5.0",
     "eslint": "^8.13.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-jest": "^26.1.4",
+    "eslint-plugin-prettier": "^4.2.1",
     "jest": "^27.5.1"
   }
 }

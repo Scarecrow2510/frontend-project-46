@@ -1,43 +1,20 @@
-import _ from 'lodash';
-import parse from './parsers.js';
-import format from './formatters/index.js';
-import readFile from './readfile.js';
+import fs from 'fs';
+import path from 'path';
+import diffTree from './findDiff.js';
+import getParser from './parsers.js';
+import getFormat from './formatters/index.js';
 
-const mergeKeys = (data1, data2) => _.union(Object.keys(data1), Object.keys(data2));
+const getFileFormat = (filepath) => path.extname(filepath).slice(1);
+const getPathFile = (filepath) => path.resolve(process.cwd(), filepath).trim();
+const readFile = (filepath) => fs.readFileSync(getPathFile(filepath), 'utf-8');
 
-const getChildrenValues = (node, data1, data2) => [_.get(data1, node), _.get(data2, node)];
-
-const buildTree = (data1, data2) => {
-  const sortedKeys = _.sortBy(mergeKeys(data1, data2));
-  return sortedKeys.flatMap((key) => {
-    const [value1, value2] = getChildrenValues(key, data1, data2);
-    switch (true) {
-      case (_.isPlainObject(value1) && _.isPlainObject(value2)):
-        return { key, type: 'nested', children: buildTree(value1, value2) };
-      case (_.isEqual(value1, value2)):
-        return { key, type: 'unchanged', children: value1 };
-      case (_.has(data1, key) && _.has(data2, key)): {
-        return { key, type: 'changed', children: { old: value1, new: value2 } };
-      }
-      case (!value1 || !value2): {
-        const children = value1 || value2;
-        const newType = value1 ? 'deleted' : 'added';
-        return { key, type: newType, children };
-      }
-      default: {
-        throw new Error('Unexpected result of comparing!');
-      }
-    }
-  });
+const genDiff = (filepath1, filepath2, format = 'stylish') => {
+  const dataFromFilepath1 = readFile(filepath1);
+  const dataFromFilepath2 = readFile(filepath2);
+  const file1data = getParser(dataFromFilepath1, getFileFormat(filepath1));
+  const file2data = getParser(dataFromFilepath2, getFileFormat(filepath2));
+  const diff = diffTree(file1data, file2data);
+  return getFormat(diff, format);
 };
 
-export default (path1, path2, formatName = 'stylish') => {
-  const [fileData1, fileExt1] = readFile(path1);
-  const dataObject1 = parse(fileData1, fileExt1);
-
-  const [fileData2, fileExt2] = readFile(path2);
-  const dataObject2 = parse(fileData2, fileExt2);
-
-  const result = buildTree(dataObject1, dataObject2);
-  return format(result, formatName);
-};
+export default genDiff;
