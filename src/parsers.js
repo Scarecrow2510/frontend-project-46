@@ -4,8 +4,7 @@ const getParser = (data, format) => {
   switch (format) {
     case 'json':
       return JSON.parse(data);
-    case 'yaml':
-    case 'yml':
+    case 'yaml' || 'yml':
       return load(data);
     default:
       throw new Error(`Unknown fornmat: ${format}. You can use JSON or YAML formats.`);
