@@ -1,7 +1,7 @@
 import _ from 'lodash';
 
 const findDiff = (data1, data2) => {
-  const sortedKeys = _.sortBy(Object.keys({ ...data1, ...data2 }));
+  const sortedKeys = _.sortBy.union(_.keys(data1), _.keys(data2));
   const result = sortedKeys.map((key) => {
     if (_.isObject(data1[key]) && _.isObject(data2[key])) {
       return {
