@@ -15,19 +15,19 @@ const tests = [
     file1: 'file1.json', file2: 'file2.json', formatter: 'stylish', output: 'stylishOutput.txt',
   },
   {
-    file1: 'file1.yaml' || 'file1.yml', file2: 'file2.yaml' || 'file2.yml', formatter: 'stylish', output: 'stylishOutput.txt',
+    file1: 'file1.yaml', file2: 'file2.yaml', formatter: 'stylish', output: 'stylishOutput.txt',
   },
   {
     file1: 'file1.json', file2: 'file2.json', formatter: 'plain', output: 'plainOutput.txt',
   },
   {
-    file1: 'file1.yaml' || 'file1.yml', file2: 'file2.yaml' || 'file2.yml', formatter: 'plain', output: 'plainOutput.txt',
+    file1: 'file1.yaml', file2: 'file2.yaml', formatter: 'plain', output: 'plainOutput.txt',
   },
   {
     file1: 'file1.json', file2: 'file2.json', formatter: 'json', output: 'outputresult.json',
   },
   {
-    file1: 'file1.yaml' || 'file1.yml', file2: 'file2.yaml' || 'file2.yml', formatter: 'json', output: 'outputresult.json',
+    file1: 'file1.yaml', file2: 'file2.yaml', formatter: 'json', output: 'outputresult.json',
   },
 ];
 
