@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import getPrefix from 'get-prefix';
 
 const makeIndent = (depth, replacer = ' ', spacesCount = 4) => replacer.repeat(depth * spacesCount - 2);
 
@@ -32,12 +33,19 @@ const stylish = (diff, depth = 0) => {
       return `${makeIndent(depth)}+ ${name}: ${valueFromation(value, stylish, depth)}`;
     case 'deleted':
       return `${makeIndent(depth)}- ${name}: ${valueFromation(value, stylish, depth)}`;
-    case 'unchanged':
-      return `${makeIndent(depth)}  ${name}: ${valueFromation(value, stylish, depth)}`;
+    case 'unchanged': {
+      if ('value' in diff) {
+        return `${makeIndent(depth)}${getPrefix(diff.type)} ${name}: ${valueFromation(diff.value, stylish, depth)}`;
+      }
+      throw new Error(`Field ${value} is missing in ${diff.type} type`);
+    }
     case 'changed': {
-      const removed = `${makeIndent(depth)}- ${name}: ${valueFromation(value1, stylish, depth)}`;
-      const added = `${makeIndent(depth)}+ ${name}: ${valueFromation(value2, stylish, depth)}`;
-      return `${removed}\n${added}`;
+      if ('value1' in diff && 'value2' in diff) {
+        const removed = `${makeIndent(depth)}- ${name}: ${valueFromation(diff.value1, stylish, depth)}`;
+        const added = `${makeIndent(depth)}+ ${name}: ${valueFromation(diff.value2, stylish, depth)}`;
+        return `${removed}\n${added}`;
+      }
+      throw new Error(`Fields ${value1} or ${value2} are missing in ${diff.type} type`);
     }
     default:
       throw new Error(`Type: ${type} is undefined`);
