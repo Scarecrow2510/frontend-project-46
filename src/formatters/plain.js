@@ -33,8 +33,12 @@ const plain = (diff, fileName = []) => {
       return `Property '${joinPath}' was added with value: ${checkValueFormat(value)}`;
     case 'deleted':
       return `Property '${joinPath}' was removed`;
-    case 'changed':
-      return `Property '${joinPath}' was updated. From ${checkValueFormat(value1)} to ${checkValueFormat(value2)}`;
+    case 'changed': {
+      if ('value1' in diff && 'value2' in diff) {
+        return `Property '${joinPath}' was updated. From ${checkValueFormat(value1)} to ${checkValueFormat(value2)}`;
+      }
+      throw new Error(`Fields 'value1' or 'value2' are missing in ${diff.type} type`);
+    }
     default:
       throw new Error(`Type: ${type} is undefined`);
   }
