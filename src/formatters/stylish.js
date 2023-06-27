@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import getPrefix from 'get-prefix';
 
 const makeIndent = (depth, replacer = ' ', spacesCount = 4) => replacer.repeat(depth * spacesCount - 2);
 
@@ -35,7 +34,7 @@ const stylish = (diff, depth = 0) => {
       return `${makeIndent(depth)}- ${name}: ${valueFromation(value, stylish, depth)}`;
     case 'unchanged': {
       if ('value' in diff) {
-        return `${makeIndent(depth)}${getPrefix(diff.type)} ${name}: ${valueFromation(diff.value, stylish, depth)}`;
+        return `${makeIndent(depth)}  ${name}: ${valueFromation(diff.value, stylish, depth)}`;
       }
       throw new Error(`Field ${value} is missing in ${diff.type} type`);
     }
