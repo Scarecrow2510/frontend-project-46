@@ -32,7 +32,7 @@ const tests = [
 ];
 
 test.each(tests)('gendiff stylish, plain and json tests', ({
-  file1, file2, formatter = 'json', output,
+  file1, file2, formatter = 'stylish', output,
 }) => {
   const filepath1 = getFixturePath(file1);
   const filepath2 = getFixturePath(file2);
