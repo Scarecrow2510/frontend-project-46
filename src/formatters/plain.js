@@ -29,12 +29,8 @@ const plain = (diff, fileName = []) => {
         .flatMap((child) => plain(child, nestedKeys));
       return result.join('\n');
     }
-    case 'added': {
-      if ('value' in diff) {
-        return `Property '${joinPath}' was added with value: ${checkValueFormat(value)}`;
-      }
-      throw new Error(`Field ${value} is missing in ${diff.type} type`);
-    }
+    case 'added':
+      return `Property '${joinPath}' was added with value: ${checkValueFormat(value)}`;
     case 'deleted':
       return `Property '${joinPath}' was removed`;
     case 'changed': {

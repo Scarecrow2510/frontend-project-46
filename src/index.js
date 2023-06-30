@@ -9,11 +9,11 @@ const getPathFile = (filepath) => path.resolve(process.cwd(), filepath).trim();
 const readFile = (filepath) => fs.readFileSync(getPathFile(filepath), 'utf-8');
 
 const genDiff = (filepath1, filepath2, format = 'stylish') => {
-  const dataFromFilepath1 = readFile(filepath1);
-  const dataFromFilepath2 = readFile(filepath2);
-  const file1data = getParser(dataFromFilepath1, getFileFormat(filepath1));
-  const file2data = getParser(dataFromFilepath2, getFileFormat(filepath2));
-  const diff = diffTree(file1data, file2data);
+  const content1 = readFile(filepath1);
+  const content2 = readFile(filepath2);
+  const data1 = getParser(content1, getFileFormat(filepath1));
+  const data2 = getParser(content2, getFileFormat(filepath2));
+  const diff = diffTree(data1, data2);
   return getFormat(diff, format);
 };
 

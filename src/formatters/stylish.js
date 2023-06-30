@@ -28,18 +28,10 @@ const stylish = (diff, depth = 0) => {
       const resultLine = children.flatMap((child) => stylish(child, depth + 1));
       return `${makeIndent(depth)}  ${name}: {\n${resultLine.join('\n')}\n${makeIndent(depth)}  }`;
     }
-    case 'added': {
-      if ('value' in diff) {
-        return `${makeIndent(depth)}+ ${name}: ${valueFromation(value, stylish, depth)}`;
-      }
-      throw new Error(`Field ${value} is missing in ${diff.type} type`);
-    }
-    case 'deleted': {
-      if ('value' in diff) {
-        return `${makeIndent(depth)}- ${name}: ${valueFromation(value, stylish, depth)}`;
-      }
-      throw new Error(`Field ${value} is missing in ${diff.type} type`);
-    }
+    case 'added':
+      return `${makeIndent(depth)}+ ${name}: ${valueFromation(value, stylish, depth)}`;
+    case 'deleted':
+      return `${makeIndent(depth)}- ${name}: ${valueFromation(value, stylish, depth)}`;
     case 'unchanged': {
       if ('value' in diff) {
         return `${makeIndent(depth)}  ${name}: ${valueFromation(diff.value, stylish, depth)}`;

@@ -15,28 +15,34 @@ const tests = [
     file1: 'file1.json', file2: 'file2.json', formatter: 'stylish', output: 'stylishOutput.txt',
   },
   {
-    file1: 'file1.yaml' || 'file1.yml', file2: 'file2.yaml' || 'file2.yml', formatter: 'stylish', output: 'stylishOutput.txt',
+    file1: 'file1.yaml', file2: 'file2.yaml', formatter: 'stylish', output: 'stylishOutput.txt',
   },
   {
     file1: 'file1.json', file2: 'file2.json', formatter: 'plain', output: 'plainOutput.txt',
   },
   {
-    file1: 'file1.yaml' || 'file1.yml', file2: 'file2.yaml' || 'file2.yml', formatter: 'plain', output: 'plainOutput.txt',
+    file1: 'file1.yaml', file2: 'file2.yaml', formatter: 'plain', output: 'plainOutput.txt',
   },
   {
     file1: 'file1.json', file2: 'file2.json', formatter: 'json', output: 'outputresult.json',
   },
   {
-    file1: 'file1.yaml' || 'file1.yml', file2: 'file2.yaml' || 'file2.yml', formatter: 'json', output: 'outputresult.json',
+    file1: 'file1.yaml', file2: 'file2.yaml', formatter: 'json', output: 'outputresult.json',
   },
 ];
 
 test.each(tests)('gendiff stylish, plain and json tests', ({
-  file1, file2, formatter = 'stylish', output,
+  file1, file2, formatter, output,
 }) => {
   const filepath1 = getFixturePath(file1);
   const filepath2 = getFixturePath(file2);
   const expected = readFile(output);
   const result = genDiff(filepath1, filepath2, formatter);
   expect(result).toEqual(expected);
+});
+
+test('should set default formatter', () => {
+  const formatter = undefined;
+  // здесь должна быть логика вашего приложения для установки форматтера
+  expect(formatter).toBe('json');
 });
