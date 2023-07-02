@@ -41,9 +41,22 @@ test.each(tests)('gendiff stylish, plain and json tests', ({
   expect(result).toEqual(expected);
 });
 
-test('should set default formatter', () => {
-  const formatter = 'file1.json';
-  const defaultFormatter = 'json';
-  expect(genDiff(getFixturePath(formatter), getFixturePath(formatter)))
-    .toBe(defaultFormatter);
+const defaultFormatterTestTable = [
+  {
+    file1: 'file1.json', file2: 'file2.json', formatter: undefined, output: 'resultStylish.txt',
+  },
+  {
+    file1: 'file1.yaml', file2: 'file2.yaml', formatter: undefined, output: 'resultStylish.txt',
+  },
+];
+
+test.each(defaultFormatterTestTable)('default formatter value test', ({
+  file1, file2, output, formatter,
+}) => {
+  const filepath1 = getFixturePath(file1);
+  const filepath2 = getFixturePath(file2);
+  const expected = readFile(output);
+  const result = genDiff(filepath1, filepath2, formatter);
+
+  expect(result).toEqual(expected);
 });
